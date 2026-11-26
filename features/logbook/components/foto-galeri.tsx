@@ -6,12 +6,14 @@ import { focusRing } from "@/shared/lib/ui";
 import { urlFoto } from "../lib/types";
 
 /** Galeri bersama untuk lampiran logbook dan postingan komunitas. */
-export function FotoGaleri({ ids, judul, src = urlFoto, detail }: {
+export function FotoGaleri({ ids, judul, src = urlFoto, detail, ringkas = false }: {
+  ringkas?: boolean;
   detail?: ReactNode;
   ids: number[];
   judul: string;
-  src?: (id: number) => string;
+  src?: string | ((id: number) => string);
 }) {
+  const sumberFoto = typeof src === "string" ? (id: number) => `${src}/${id}` : src;
   const dialog = useRef<HTMLDialogElement>(null);
   const [aktif, setAktif] = useState<number | null>(null);
   const tunggal = ids.length === 1;
@@ -32,15 +34,15 @@ export function FotoGaleri({ ids, judul, src = urlFoto, detail }: {
   if (ids.length === 0) return null;
 
   return <>
-    <ul aria-label={`Foto lampiran: ${judul}`} className={`mt-3 grid gap-2 ${tunggal ? "grid-cols-1" : "grid-cols-2"}`}>
+    <ul aria-label={`Foto lampiran: ${judul}`} className={ringkas ? "mt-2 flex flex-wrap gap-2" : `mt-3 grid gap-2 ${tunggal ? "grid-cols-1" : "grid-cols-2"}`}>
       {ids.map((id, i) => (
-        <li key={id} className="overflow-hidden rounded-xl border border-hub-line bg-hub-canvas">
+        <li key={id} className={`${ringkas ? "w-16 shrink-0 rounded-lg" : "rounded-xl"} overflow-hidden border border-hub-line bg-hub-canvas`}>
           <button type="button" onClick={() => { setAktif(i); dialog.current?.showModal(); }}
             aria-label={`Buka foto ${i + 1} dari ${ids.length} ukuran penuh`} aria-haspopup="dialog"
             className={`block w-full cursor-zoom-in ${focusRing}`}>
             {/* eslint-disable-next-line @next/next/no-img-element -- foto dari API berotentikasi */}
-            <img src={src(id)} alt={`Foto ${i + 1} dari ${ids.length}: ${judul}`} loading="lazy" decoding="async"
-              className={tunggal ? "mx-auto max-h-[28rem] w-auto max-w-full" : "aspect-[4/3] w-full object-cover"} />
+            <img src={sumberFoto(id)} alt={`Foto ${i + 1} dari ${ids.length}: ${judul}`} loading="lazy" decoding="async"
+              className={ringkas ? "aspect-square w-full object-cover" : tunggal ? "mx-auto max-h-[28rem] w-auto max-w-full" : "aspect-[4/3] w-full object-cover"} />
           </button>
         </li>
       ))}
@@ -59,7 +61,7 @@ export function FotoGaleri({ ids, judul, src = urlFoto, detail }: {
         <span className="absolute left-20 top-7 text-sm font-semibold text-white/80">UBL Hub</span>
         <div className="flex h-[65dvh] w-full items-center justify-center px-2 py-20 lg:h-dvh lg:px-16" onClick={(event) => { if (event.target === event.currentTarget) dialog.current?.close(); }}>
           {/* eslint-disable-next-line @next/next/no-img-element -- ukuran asli dari API berotentikasi */}
-          {aktif !== null && <img key={ids[index]} src={src(ids[index])} alt={`Foto ${index + 1}: ${judul}`} className="max-h-full max-w-full object-contain" />}
+          {aktif !== null && <img key={ids[index]} src={sumberFoto(ids[index])} alt={`Foto ${index + 1}: ${judul}`} className="max-h-full max-w-full object-contain" />}
         </div>
         {!tunggal && <>
           <button type="button" aria-label="Foto sebelumnya" onClick={() => pindah(-1)} className={`${kontrol} absolute left-3 top-1/2 -translate-y-1/2`}><Icon name="chevron" className="size-6 rotate-90" /></button>

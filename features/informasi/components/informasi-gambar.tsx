@@ -4,10 +4,10 @@ import { useState } from "react";
 import { kompresFoto } from "@/features/logbook/client";
 import { panggilApi, pesanGalat } from "@/shared/lib/api-client";
 import type { Informasi } from "../types";
-export function InformasiGambar({ item, admin = false }: { item: Informasi; admin?: boolean }) {
+export function InformasiGambar({ item, admin = false, thumbnail = false }: { item: Informasi; admin?: boolean; thumbnail?: boolean }) {
  if (!item.gambar) return null;
  const src = `/api/${admin ? "informasi-admin" : "informasi"}/${item.id}/gambar?v=${encodeURIComponent(item.gambar.updated_at)}`;
- return <a href={src} target="_blank" rel="noopener noreferrer" className="my-4 block rounded-xl focus-visible:outline-2 focus-visible:outline-hub-navy" aria-label={`Buka gambar ${item.judul} ukuran penuh`}><img src={src} alt={`Gambar informasi: ${item.judul}`} loading="lazy" className="max-h-[32rem] w-full rounded-xl bg-hub-canvas object-contain" /></a>;
+ return <a href={src} target="_blank" rel="noopener noreferrer" className={`${thumbnail ? "block shrink-0 sm:w-44" : "my-4 block"} rounded-xl focus-visible:outline-2 focus-visible:outline-hub-navy`} aria-label={`Buka gambar ${item.judul} ukuran penuh`}><img src={src} alt={`Gambar informasi: ${item.judul}`} loading="lazy" className={`${thumbnail ? "h-44 sm:h-40" : "max-h-[32rem]"} w-full rounded-xl bg-hub-canvas object-contain`} /></a>;
 }
 export function InformasiGambarField({ item, onChange, onBusy }: { item: Informasi; onChange: (gambar: Informasi["gambar"]) => void; onBusy: (busy: boolean) => void }) {
  const [busy, setBusy] = useState(false);

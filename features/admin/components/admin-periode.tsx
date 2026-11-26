@@ -13,6 +13,13 @@ import {
   type PeriodeInput,
 } from "../lib/periode";
 
+const PENJELASAN_VERSI: Record<string, string> = {
+  "1.0":
+    "Instrumen resmi Dikti apa adanya (kuesioner lengkap). Pilih jika UBL perlu mengikuti format baku Dikti tanpa penyesuaian.",
+  "1.2":
+    "Instrumen Dikti dengan mode Ringkas: 4 langkah (langkah 1 dan 2 inti, alumni bisa kirim inti dulu), arah karier bertingkat, dan masa tunggu kerja dihitung otomatis. Disarankan untuk periode baru.",
+};
+
 const initial: PeriodeInput = {
   nama: "",
   instrumen: "",
@@ -514,6 +521,17 @@ export function AdminPeriode() {
                     ))}
                   </select>
                   {errorFor("instrumen")}
+                  {(() => {
+                    const versi = data.instrumen.find(
+                      (i) => i.id === Number(input.instrumen),
+                    )?.versi;
+                    const info = versi && PENJELASAN_VERSI[versi];
+                    return info ? (
+                      <p className="mt-2 rounded-lg bg-hub-surface p-3 text-xs leading-relaxed">
+                        <strong>Versi {versi}:</strong> {info}
+                      </p>
+                    ) : null;
+                  })()}
                   <p className="mt-2 text-xs leading-relaxed text-hub-muted">
                     {data.instrumen.length
                       ? "Instrumen yang sudah dikunci tetap dapat digunakan untuk periode baru."
