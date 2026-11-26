@@ -2,7 +2,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { LogoutButton } from "@/shared/components/logout-button";
 import { Icon, type IconName } from "@/shared/components/icons";
-import { focusRing } from "@/shared/lib/ui";
 import { NotificationBell } from "@/shared/components/notification-bell";
 import { GlobalSearch } from "@/shared/components/global-search";
 
@@ -56,7 +55,6 @@ export function Sidebar({ active = "/" }: { active?: string }) {
         </ul>
       </nav>
       <div className="flex flex-col gap-3 px-4 pb-5">
-        <div className="flex items-center gap-3"><NotificationBell /><Link href="/notifikasi" className={`text-sm font-medium ${focusRing}`}>Notifikasi</Link></div>
         <LogoutButton />
         <p className="px-2 text-xs text-hub-muted">© Universitas Bandar Lampung</p>
       </div>
@@ -108,7 +106,7 @@ export function TopBar() {
         <Image src="/ubl-logo.png" alt="" width={30} height={30} className="size-[30px]" />
         <span className="hidden text-base font-semibold tracking-tight sm:inline">UBL Hub</span>
       </div>
-      <div className="flex items-center gap-2"><GlobalSearch /><span className="lg:hidden"><NotificationBell /></span><span className="lg:hidden"><LogoutButton /></span></div>
+      <div className="flex items-center gap-2"><GlobalSearch /><NotificationBell /><span className="lg:hidden"><LogoutButton /></span></div>
     </header>
   );
 }
