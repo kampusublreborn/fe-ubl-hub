@@ -6,3 +6,4 @@ export { tanggal } from "./lib/types";
 export type { Penulis, Halaman } from "./lib/types";
 
 export { KomentarProvider } from "./components/komentar-panel";
+export { LogbookItem } from "./components/logbook-item";

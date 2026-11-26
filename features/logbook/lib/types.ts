@@ -12,6 +12,7 @@ export type Kategori = (typeof KATEGORI)[number]["nilai"];
 export const labelKategori = (k: string) => KATEGORI.find((x) => x.nilai === k)?.label ?? k;
 
 export type Penulis = {
+  id: number;
   nama: string;
   prodi: string | null;
   tahunLulus: number | null;

@@ -64,7 +64,7 @@ export function GlobalSearch() {
       </div>
       <div className="px-5 pb-4">
         <label htmlFor="hub-search" className="mb-2 block text-sm font-medium">Apa yang ingin kamu temukan?</label>
-        <input ref={input} id="hub-search" type="search" value={query} maxLength={100} autoComplete="off" placeholder="Cari informasi, logbook, komunitas…" aria-describedby="search-help" onChange={e => { setQuery(e.target.value); setPage(1); setError(""); }} className={`min-h-12 w-full rounded-xl border border-hub-line bg-hub-canvas px-4 text-base ${focusRing}`} />
+        <input ref={input} id="hub-search" type="search" value={query} maxLength={100} autoComplete="off" placeholder="Cari alumni, informasi, logbook, komunitas…" aria-describedby="search-help" onChange={e => { setQuery(e.target.value); setPage(1); setError(""); }} className={`min-h-12 w-full rounded-xl border border-hub-line bg-hub-canvas px-4 text-base ${focusRing}`} />
         <p id="search-help" className="mt-2 text-xs text-hub-muted">Ketik minimal 2 karakter. Hasil mengikuti akses akun kamu.</p>
       </div>
       <div className="max-h-[55dvh] overflow-y-auto overscroll-contain border-t border-hub-line px-3 pb-4">

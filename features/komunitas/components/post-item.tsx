@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState } from "react";
 import { KomentarProvider } from "@/features/logbook/client";
 import { Avatar } from "@/shared/components/avatar";
@@ -142,7 +143,7 @@ export function PostItem({
         <Avatar nama={item.penulis.nama} />
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-baseline gap-x-1.5 text-sm">
-            <span className="font-semibold [overflow-wrap:anywhere]">{item.milikSaya ? "Anda" : item.penulis.nama}</span>
+            <Link href={item.milikSaya ? "/profil" : `/profil/${item.penulis.id}`} className={`font-semibold [overflow-wrap:anywhere] hover:underline ${focusRing}`}>{item.milikSaya ? "Anda" : item.penulis.nama}</Link>
             <span aria-hidden="true" className="text-hub-muted">
               ·
             </span>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { createContext, useContext, useEffect, useId, useState, type ReactNode } from "react";
 import { Icon } from "@/shared/components/icons";
 import { panggilApi, pesanGalat } from "@/shared/lib/api-client";
@@ -30,6 +31,8 @@ export function KomentarProvider({ children }: { children: ReactNode }) {
   const [cache] = useState<CacheKomentar>(() => new Map());
   return <KonteksKomentar.Provider value={cache}>{children}</KonteksKomentar.Provider>;
 }
+
+const profilHref = (k: Komentar) => (k.milikSaya ? "/profil" : `/profil/${k.penulis.id}`);
 
 type Sasaran = { induk: number; id: number; nama: string };
 
@@ -183,11 +186,11 @@ export function KomentarPanel({
   function gelembung(k: Komentar, induk: Komentar | null) {
     return (
       <div className="flex gap-2">
-        <Avatar nama={k.penulis.nama} kecil={!!induk} />
+        <Link href={profilHref(k)} tabIndex={-1} aria-hidden="true"><Avatar nama={k.penulis.nama} kecil={!!induk} /></Link>
         <div className="min-w-0 flex-1">
           <div className="rounded-2xl bg-hub-canvas px-3.5 py-2">
             <p className="flex items-baseline justify-between gap-2 text-xs">
-              <span className="truncate font-semibold">{k.milikSaya ? "Anda" : k.penulis.nama}</span>
+              <Link href={profilHref(k)} className={`min-w-0 truncate font-semibold hover:underline ${focusRing}`}>{k.milikSaya ? "Anda" : k.penulis.nama}</Link>
               <time dateTime={k.waktu} className="shrink-0 text-hub-muted">
                 {tanggal(k.waktu)}
               </time>

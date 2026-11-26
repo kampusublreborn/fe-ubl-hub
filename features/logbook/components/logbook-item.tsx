@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useId, useState } from "react";
 import { KomentarProvider } from "./komentar-panel";
 import { Avatar } from "@/shared/components/avatar";
@@ -25,6 +26,7 @@ export function LogbookItem({ awal, onHapus, komentarTerbuka = false }: { awal: 
   const [sibuk, setSibuk] = useState(false);
   const [bukaKomentar, setBukaKomentar] = useState(komentarTerbuka);
   const panelId = useId();
+  const profilHref = item.milikSaya ? "/profil" : `/profil/${item.penulis.id}`;
 
   async function ubahLike() {
     const sudah = item.sudahLike;
@@ -71,12 +73,12 @@ export function LogbookItem({ awal, onHapus, komentarTerbuka = false }: { awal: 
       className="rounded-2xl border border-hub-line bg-white p-4 transition-shadow duration-200 hover:shadow-[0_8px_24px_-14px_rgba(15,27,61,0.3)] sm:p-5"
     >
       <header className="flex items-start gap-3">
-        <Avatar nama={item.penulis.nama} />
+        <Link href={profilHref} tabIndex={-1} aria-hidden="true" className="shrink-0"><Avatar nama={item.penulis.nama} /></Link>
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-baseline gap-x-1.5 text-sm">
-            <span className="font-semibold [overflow-wrap:anywhere]">
+            <Link href={profilHref} className={`font-semibold [overflow-wrap:anywhere] hover:underline ${focusRing}`}>
               {item.milikSaya ? "Anda" : item.penulis.nama}
-            </span>
+            </Link>
             <span aria-hidden="true" className="text-hub-muted">·</span>
             <time dateTime={item.waktu} className="text-hub-muted">
               {tanggal(item.waktu)}
@@ -106,8 +108,8 @@ export function LogbookItem({ awal, onHapus, komentarTerbuka = false }: { awal: 
       </p>
       <FotoGaleri ids={item.gambar} judul={item.judul} detail={<>
         <div className="flex items-center gap-3">
-          <Avatar nama={item.penulis.nama} />
-          <div className="min-w-0"><p className="font-semibold [overflow-wrap:anywhere]">{item.penulis.nama}</p><time dateTime={item.waktu} className="text-xs text-hub-muted">{tanggal(item.waktu)}</time></div>
+          <Link href={profilHref} tabIndex={-1} aria-hidden="true" className="shrink-0"><Avatar nama={item.penulis.nama} /></Link>
+          <div className="min-w-0"><p><Link href={profilHref} className={`font-semibold [overflow-wrap:anywhere] hover:underline ${focusRing}`}>{item.penulis.nama}</Link></p><time dateTime={item.waktu} className="text-xs text-hub-muted">{tanggal(item.waktu)}</time></div>
         </div>
         <h2 className="mt-4 font-semibold [overflow-wrap:anywhere]">{item.judul}</h2>
         <p className="mt-3 whitespace-pre-line text-sm leading-relaxed [overflow-wrap:anywhere]">{item.isi}</p>
