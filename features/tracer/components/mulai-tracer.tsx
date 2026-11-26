@@ -2,14 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
+import { Icon } from "@/shared/components/icons";
 import { focusRing } from "@/shared/lib/ui";
 import { panggil } from "../lib/helpers";
 
 const LANGKAH_AWAL = [
-  "Cek data dari kampus",
-  "Pertanyaan inti",
-  "Penilaian singkat",
-  "Pencarian kerja",
+  { judul: "Cek data dari kampus", ket: "Tinggal konfirmasi, sudah terisi otomatis" },
+  { judul: "Pertanyaan inti", ket: "Status, tempat kerja, dan penghasilan" },
+  { judul: "Penilaian singkat", ket: "Boleh menyusul" },
+  { judul: "Pencarian kerja", ket: "Boleh menyusul" },
 ];
 
 /** Memulai pengisian: server menyalin data kampus dan passport menjadi jawaban usulan. */
@@ -44,20 +45,28 @@ export function MulaiTracer({ namaPeriode }: { namaPeriode: string }) {
         <h2 id="mulai" className="max-w-lg text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
           Mulai pengisian tracer study
         </h2>
-        <p className="text-sm text-white/80">Bagian inti sekitar 3 menit. Sisanya boleh menyusul.</p>
+        <p className="flex items-center gap-2 text-sm text-white/80">
+          <Icon name="clock" className="size-4 text-hub-sand" />
+          Bagian inti sekitar 3 menit. Sisanya boleh menyusul.
+        </p>
       </div>
 
       <div className="relative order-2 self-center rounded-2xl border border-white/10 bg-white/10 p-5 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:p-7">
         <ol className="flex flex-col gap-4 text-base text-white/90">
           {LANGKAH_AWAL.map((t, i) => (
-            <li key={t} className="flex items-center gap-4">
+            <li key={t.judul} className="flex items-center gap-4">
               <span
                 aria-hidden="true"
-                className="flex size-8 shrink-0 items-center justify-center rounded-full bg-hub-sand text-sm font-bold text-hub-ink"
+                className={`flex size-9 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+                  i < 2 ? "bg-hub-sand text-hub-ink" : "border border-white/30 text-white/80"
+                }`}
               >
                 {i + 1}
               </span>
-              <span>{t}</span>
+              <span className="flex flex-col">
+                <span className="font-semibold">{t.judul}</span>
+                <span className="text-sm text-white/70">{t.ket}</span>
+              </span>
             </li>
           ))}
         </ol>
@@ -73,9 +82,10 @@ export function MulaiTracer({ namaPeriode }: { namaPeriode: string }) {
           type="button"
           onClick={klik}
           disabled={mengirim || mulai}
-          className={`min-h-12 w-full rounded-xl bg-hub-sand px-6 text-base font-semibold text-hub-ink transition hover:brightness-110 active:scale-[0.98] motion-reduce:transform-none disabled:opacity-60 sm:w-auto sm:self-start ${focusRing}`}
+          className={`inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-hub-sand px-6 text-base font-semibold text-hub-ink transition hover:brightness-110 active:scale-[0.98] motion-reduce:transform-none disabled:opacity-60 sm:w-auto sm:self-start ${focusRing}`}
         >
           {mengirim || mulai ? "Menyiapkan data Anda..." : "Mulai"}
+          {!(mengirim || mulai) && <Icon name="arrow" className="size-5" />}
         </button>
       </div>
     </section>

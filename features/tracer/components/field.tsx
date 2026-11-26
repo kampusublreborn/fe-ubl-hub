@@ -43,7 +43,7 @@ export function Field(props: FieldProps) {
     <div
       id={`butir-${butir.kode}`}
       className={`scroll-mt-6 flex flex-col gap-3 ${
-        tanpaKartu ? "" : "rounded-2xl border border-hub-line bg-white p-4 shadow-sm shadow-hub-navy/[0.02] sm:p-5"
+        tanpaKartu ? "" : "rounded-2xl border border-hub-line bg-white p-5 shadow-sm shadow-hub-navy/[0.03] sm:p-6"
       }`}
     >
       <div className="flex items-center justify-between gap-3">
@@ -51,7 +51,7 @@ export function Field(props: FieldProps) {
           <label
             id={`${id}-l`}
             htmlFor={id}
-            className={tanpaKartu ? "text-sm font-semibold leading-snug" : "text-base font-semibold leading-snug"}
+            className={tanpaKartu ? "text-sm font-semibold leading-snug" : "text-base font-semibold leading-snug text-hub-navy"}
           >
             {teks}
             {wajib && <span className="text-[#B42318]"> *</span>}
@@ -83,7 +83,7 @@ function Isian({ butir, jawaban, range, nilaiInduk, onSimpan, disabled, id }: Fi
   switch (butir.tipe) {
     case "PILIHAN_TUNGGAL":
       return (
-        <div id={id} role="radiogroup" aria-labelledby={`${id}-l`} className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:[&>button:last-child:nth-child(odd)]:col-span-2">
+        <div id={id} role="radiogroup" aria-labelledby={`${id}-l`} className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {butir.opsi?.map((o) => {
             const pilih = String(nilai) === String(o.nilai);
             return (
@@ -106,7 +106,7 @@ function Isian({ butir, jawaban, range, nilaiInduk, onSimpan, disabled, id }: Fi
                 >
                   {pilih && <span className="size-2.5 rounded-full bg-hub-navy" />}
                 </span>
-                {o.label}
+                <span className="min-w-0 break-words [overflow-wrap:anywhere]">{o.label}</span>
               </button>
             );
           })}
@@ -116,7 +116,7 @@ function Isian({ butir, jawaban, range, nilaiInduk, onSimpan, disabled, id }: Fi
     case "PILIHAN_GANDA": {
       const dipilih = Array.isArray(nilai) ? nilai.map(String) : [];
       return (
-        <div id={id} role="group" aria-labelledby={`${id}-l`} className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:[&>button:last-child:nth-child(odd)]:col-span-2">
+        <div id={id} role="group" aria-labelledby={`${id}-l`} className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {butir.opsi?.map((o) => {
             const pilih = dipilih.includes(String(o.nilai));
             return (
@@ -142,7 +142,7 @@ function Isian({ butir, jawaban, range, nilaiInduk, onSimpan, disabled, id }: Fi
                 >
                   {pilih && <Icon name="check" className="size-3.5" />}
                 </span>
-                {o.label}
+                <span className="min-w-0 break-words [overflow-wrap:anywhere]">{o.label}</span>
               </button>
             );
           })}
@@ -155,7 +155,7 @@ function Isian({ butir, jawaban, range, nilaiInduk, onSimpan, disabled, id }: Fi
 
     case "RANGE":
       return (
-        <div id={id} role="radiogroup" aria-labelledby={`${id}-l`} className="grid grid-cols-1 gap-2 sm:grid-cols-2 sm:[&>button:last-child:nth-child(odd)]:col-span-2">
+        <div id={id} role="radiogroup" aria-labelledby={`${id}-l`} className="grid grid-cols-1 gap-2 sm:grid-cols-2">
           {range === undefined && <p className="col-span-full text-sm text-hub-muted">Memuat pilihan...</p>}
           {range?.map((r) => {
             const pilih = nilai === r.id;
@@ -171,7 +171,7 @@ function Isian({ butir, jawaban, range, nilaiInduk, onSimpan, disabled, id }: Fi
                   pilih ? "border-hub-navy bg-[#EEF1FB] font-semibold shadow-sm" : "border-hub-line bg-white hover:border-hub-navy/40 hover:bg-hub-canvas"
                 }`}
               >
-                {r.label}
+                <span className="min-w-0 break-words [overflow-wrap:anywhere]">{r.label}</span>
               </button>
             );
           })}

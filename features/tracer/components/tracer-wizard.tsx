@@ -404,43 +404,47 @@ export function TracerWizard({
       const anak = b.anak?.length ? barisCepat(b.anak) : null;
       if (!j || sedangUbah) {
         return (
-          <div key={b.kode} className="flex flex-col gap-3">
-            <div className="rounded-2xl border border-hub-line bg-white p-4">
+          <Fragment key={b.kode}>
+            <div className="flex flex-col gap-2">
               <Field {...kontekstual(b)} />
               {sedangUbah && (
                 <button
                   type="button"
                   onClick={() => setUbah((s) => ({ ...s, [b.kode]: false }))}
-                  className={`mt-3 min-h-11 rounded-lg px-3 text-sm font-medium text-hub-teal-dark hover:underline ${focusRing}`}
+                  className={`inline-flex min-h-11 items-center gap-1.5 self-end rounded-xl bg-hub-navy px-4 text-sm font-semibold text-white hover:brightness-125 ${focusRing}`}
                 >
-                  Selesai
+                  <Icon name="check" className="size-4" />
+                  Selesai mengubah
                 </button>
               )}
             </div>
             {anak}
-          </div>
+          </Fragment>
         );
       }
       return (
-        <div key={b.kode} className="flex flex-col gap-3">
-          <div id={`butir-${b.kode}`} className="scroll-mt-6 flex items-start gap-3 rounded-2xl border border-hub-line bg-white p-4">
+        <Fragment key={b.kode}>
+          <div id={`butir-${b.kode}`} className="flex scroll-mt-6 items-center gap-4 rounded-2xl border border-hub-line bg-white px-4 py-3.5 sm:px-5">
+            <span aria-hidden="true" className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[#E3F4F1] text-[#0B5F57]">
+              <Icon name="check" className="size-4" />
+            </span>
             <div className="min-w-0 flex-1">
               <p className="text-xs text-hub-muted">{teksButir(b, nilai)}</p>
-              <p className="mt-0.5 break-words font-semibold">{labelNilai(b, j.nilai, b.range_jenis ? range[b.range_jenis] : [])}</p>
-              <div className="mt-1.5">
-                <Lencana jawaban={j} />
-              </div>
+              <p className="mt-0.5 break-words font-semibold leading-snug text-hub-navy">{labelNilai(b, j.nilai, b.range_jenis ? range[b.range_jenis] : [])}</p>
+            </div>
+            <div className="hidden shrink-0 sm:block">
+              <Lencana jawaban={j} />
             </div>
             <button
               type="button"
               onClick={() => setUbah((s) => ({ ...s, [b.kode]: true }))}
-              className={`min-h-11 shrink-0 rounded-lg px-3 text-sm font-medium text-hub-teal-dark hover:underline ${focusRing}`}
+              className={`min-h-11 shrink-0 rounded-xl border border-hub-line px-4 text-sm font-semibold text-hub-teal-dark transition-colors hover:bg-hub-canvas ${focusRing}`}
             >
               Ubah
             </button>
           </div>
           {anak}
-        </div>
+        </Fragment>
       );
     });
 
@@ -448,47 +452,70 @@ export function TracerWizard({
   const sisaTop = topLangkah(nomor).filter((b) => !(adaKompetensi && (b.kode === "F17A" || b.kode === "F17B")));
 
   return (
-    <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-6 pb-8 xl:grid-cols-[224px_minmax(0,1fr)] xl:gap-8">
+    <div className="grid w-full min-w-0 grid-cols-[minmax(0,1fr)] gap-6 pb-8 xl:grid-cols-[256px_minmax(0,1fr)] xl:gap-8">
       <aside className="min-w-0 xl:sticky xl:top-8 xl:self-start">
         {/* Ponsel dan tablet: penunjuk ringkas supaya pertanyaan langsung terlihat. Daftar tahap penuh di layar lebar. */}
-        <div
-          role="progressbar"
-          aria-label="Kemajuan pengisian"
-          aria-valuemin={1}
-          aria-valuemax={nomorTampil.length}
-          aria-valuenow={posisi + 1}
-          aria-valuetext={`Langkah ${posisi + 1} dari ${nomorTampil.length}: ${judul}`}
-          className="flex gap-1.5 xl:hidden"
-        >
-          {nomorTampil.map((n, i) => (
-            <span
-              key={n}
-              className={`h-1.5 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none ${
-                i < posisi ? "bg-hub-teal-dark" : i === posisi ? "bg-hub-navy" : "bg-hub-line"
-              }`}
-            />
-          ))}
+        <div className="rounded-2xl border border-hub-line bg-white p-4 shadow-sm shadow-hub-navy/[0.03] xl:hidden">
+          <div className="flex items-baseline justify-between gap-3 text-sm">
+            <span className="min-w-0 truncate font-semibold text-hub-navy">{judul}</span>
+            <span className="shrink-0 text-hub-muted">{posisi + 1}/{nomorTampil.length}</span>
+          </div>
+          <div
+            role="progressbar"
+            aria-label="Kemajuan pengisian"
+            aria-valuemin={1}
+            aria-valuemax={nomorTampil.length}
+            aria-valuenow={posisi + 1}
+            aria-valuetext={`Langkah ${posisi + 1} dari ${nomorTampil.length}: ${judul}`}
+            className="mt-3 flex gap-1.5"
+          >
+            {nomorTampil.map((n, i) => (
+              <span
+                key={n}
+                className={`h-2 flex-1 rounded-full transition-colors duration-300 motion-reduce:transition-none ${
+                  i < posisi ? "bg-hub-teal-dark" : i === posisi ? "bg-hub-sand" : "bg-hub-line"
+                }`}
+              />
+            ))}
+          </div>
         </div>
-        <nav aria-label="Tahapan pengisian" className="hidden gap-2 xl:grid xl:grid-cols-1">
-          {nomorTampil.map((n, i) => {
-            const aktif = n === nomor;
-            const bolehKembali = i < posisi;
-            const selesai = lengkap(n);
-            return (
-              <button key={n} type="button" disabled={!bolehKembali} aria-current={aktif ? "step" : undefined}
-                onClick={() => { if (!siapPindah()) return; setNomor(n); setGalat(null); setMasalah([]); window.scrollTo({ top: 0, behavior: "smooth" }); }}
-                className={`flex min-h-14 items-center gap-3 rounded-2xl border p-3 text-left transition-colors ${focusRing} ${aktif ? "border-hub-teal-dark/30 bg-white shadow-sm" : bolehKembali ? "cursor-pointer border-transparent hover:border-hub-line hover:bg-white" : "border-transparent"}`}>
-                <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${aktif ? "bg-hub-navy text-white" : selesai ? "bg-hub-teal-dark text-white" : "border border-hub-line text-hub-muted"}`}>{selesai && !aktif ? <Icon name="check" className="size-4" /> : String(i + 1).padStart(2, "0")}</span>
-                <span className="min-w-0 self-center text-sm font-semibold leading-snug">{langkah.find((l) => l.nomor === n)?.judul ?? `Langkah ${i + 1}`}</span>
-              </button>
-            );
-          })}
+        <nav aria-label="Tahapan pengisian" className="hidden rounded-2xl border border-hub-line bg-white p-2 shadow-sm shadow-hub-navy/[0.03] xl:block">
+          <p className="px-3 pb-1 pt-2 text-xs font-semibold uppercase tracking-[0.14em] text-hub-muted">Tahapan</p>
+          <ol className="flex flex-col gap-1">
+            {nomorTampil.map((n, i) => {
+              const aktif = n === nomor;
+              const bolehKembali = i < posisi;
+              const selesai = lengkap(n) && i < posisi;
+              return (
+                <li key={n}>
+                  <button
+                    type="button"
+                    disabled={!bolehKembali}
+                    aria-current={aktif ? "step" : undefined}
+                    onClick={() => { if (!siapPindah()) return; setNomor(n); setGalat(null); setMasalah([]); window.scrollTo({ top: 0, behavior: "smooth" }); }}
+                    className={`flex min-h-14 w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${focusRing} ${aktif ? "bg-hub-navy text-white" : bolehKembali ? "cursor-pointer hover:bg-hub-canvas" : "text-hub-muted"}`}
+                  >
+                    <span aria-hidden="true" className={`flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-bold ${aktif ? "bg-hub-sand text-hub-ink" : selesai ? "bg-hub-teal-dark text-white" : "border border-hub-line text-hub-muted"}`}>
+                      {selesai ? <Icon name="check" className="size-4" /> : i + 1}
+                    </span>
+                    <span className="min-w-0">
+                      <span className="block text-sm font-semibold leading-snug">{langkah.find((l) => l.nomor === n)?.judul ?? `Langkah ${i + 1}`}</span>
+                      <span className={`block text-xs ${aktif ? "text-white/70" : "text-hub-muted"}`}>{aktif ? "Sedang diisi" : selesai ? "Selesai" : "Belum"}</span>
+                    </span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
         </nav>
       </aside>
       <div className="flex min-w-0 flex-col gap-5">
-      <header className="border-b border-hub-line pb-4">
-        <p className="text-sm text-hub-muted">Langkah {posisi + 1} dari {nomorTampil.length}</p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-tight text-hub-navy sm:text-3xl">{judul}</h2>
+      <header className="flex items-start justify-between gap-4 border-b border-hub-line pb-4">
+        <div className="min-w-0">
+          <p className="text-sm font-medium text-hub-teal-dark">Langkah {posisi + 1} dari {nomorTampil.length}</p>
+          <h2 className="mt-1 text-2xl font-semibold tracking-tight text-hub-navy sm:text-3xl">{judul}</h2>
+        </div>
+        <StatusSimpan menyimpan={menyimpan > 0} gagal={Object.keys(gagalSimpan).length > 0} pernah={pernahSimpan && !galat} />
       </header>
 
       {(galat || Object.keys(gagalSimpan).length > 0) && (
@@ -534,7 +561,7 @@ export function TracerWizard({
         {cepat ? (
           <>
             <Identitas data={awal.identitas} />
-            <div className="grid grid-cols-1 items-start gap-3 lg:grid-cols-2">{barisCepat(topLangkah(nomor))}</div>
+            <div className="flex flex-col gap-3">{barisCepat(topLangkah(nomor))}</div>
           </>
         ) : (
           <>
@@ -565,17 +592,15 @@ export function TracerWizard({
         <Persetujuan setuju={setuju} setSetuju={setSetuju} />
       )}
 
-      <div role="status" aria-live="polite" className="-my-1 min-h-4 text-sm text-hub-muted">
-        {menyimpan > 0 ? "Menyimpan..." : Object.keys(gagalSimpan).length ? "Ada jawaban yang belum tersimpan." : pernahSimpan && !galat ? "Tersimpan" : ""}
-      </div>
-
-      <div className="flex gap-3 rounded-2xl border border-hub-line bg-white p-2 shadow-sm">
+      {/* Tombol navigasi di akhir isi halaman. */}
+      <div className="mt-2 flex gap-3 border-t border-hub-line pt-5">
         <button
           type="button"
           onClick={() => pindah(-1)}
           disabled={pertama}
-          className={`min-h-12 rounded-xl border border-hub-line bg-white px-5 font-semibold disabled:opacity-40 ${focusRing}`}
+          className={`inline-flex min-h-12 items-center gap-1.5 rounded-xl border border-hub-line bg-white px-4 font-semibold transition-colors hover:bg-hub-canvas disabled:opacity-40 disabled:hover:bg-white sm:px-5 ${focusRing}`}
         >
+          <Icon name="arrow" className="size-4 rotate-180" />
           Kembali
         </button>
         {final ? (
@@ -583,30 +608,57 @@ export function TracerWizard({
             type="button"
             onClick={() => kirim("penuh")}
             disabled={mengirim || menyimpan > 0 || !setuju}
-            className={`min-h-12 flex-1 rounded-xl bg-hub-navy px-6 font-semibold text-white disabled:opacity-50 ${focusRing}`}
+            className={`inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-hub-navy px-6 font-semibold text-white transition hover:brightness-125 active:scale-[0.99] motion-reduce:transform-none disabled:opacity-50 ${focusRing}`}
           >
             {mengirim ? "Mengirim..." : "Kirim Tracer Study"}
+            {!mengirim && <Icon name="check" className="size-5" />}
           </button>
         ) : cepat ? (
           <button
             type="button"
             onClick={semuaBenar}
             disabled={menyimpan > 0}
-            className={`min-h-12 flex-1 rounded-xl bg-hub-teal-dark px-6 font-semibold text-white disabled:opacity-60 ${focusRing}`}
+            className={`inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-hub-teal-dark px-6 font-semibold text-white transition hover:brightness-110 active:scale-[0.99] motion-reduce:transform-none disabled:opacity-60 ${focusRing}`}
           >
             {adaUsulan > 0 ? "Semua benar, lanjut" : "Lanjut"}
+            <Icon name="arrow" className="size-5" />
           </button>
         ) : (
           <button
             type="button"
             onClick={() => pindah(1)}
-            className={`min-h-12 flex-1 rounded-xl bg-hub-navy px-6 font-semibold text-white ${focusRing}`}
+            className={`inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-xl bg-hub-navy px-6 font-semibold text-white transition hover:brightness-125 active:scale-[0.99] motion-reduce:transform-none ${focusRing}`}
           >
             Lanjut
+            <Icon name="arrow" className="size-5" />
           </button>
         )}
       </div>
       </div>
+    </div>
+  );
+}
+
+/** Status simpan otomatis: selalu terlihat di header, jadi alumni yakin jawabannya aman. */
+function StatusSimpan({ menyimpan, gagal, pernah }: { menyimpan: boolean; gagal: boolean; pernah: boolean }) {
+  let teks = "";
+  let warna = "bg-hub-canvas text-hub-muted";
+  if (menyimpan) teks = "Menyimpan...";
+  else if (gagal) {
+    teks = "Belum tersimpan";
+    warna = "bg-[#FDE7E4] text-[#8b2118]";
+  } else if (pernah) {
+    teks = "Tersimpan";
+    warna = "bg-[#E3F4F1] text-[#0B5F57]";
+  }
+  return (
+    <div role="status" aria-live="polite" className="shrink-0">
+      {teks && (
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${warna}`}>
+          {!menyimpan && !gagal && <Icon name="check" className="size-3.5" />}
+          {teks}
+        </span>
+      )}
     </div>
   );
 }
@@ -649,23 +701,35 @@ function MasaTunggu({ bulan }: { bulan: unknown }) {
 }
 
 function Identitas({ data }: { data: Respons["identitas"] }) {
-  const ringkas = [data.nama, data.npm, data.prodi, data.tahunLulus ? `lulus ${data.tahunLulus}` : null].filter(Boolean).join(" · ");
+  const inisial = (data.nama ?? "").split(/\s+/).filter(Boolean).slice(0, 2).map((x) => x[0]).join("").toUpperCase();
+  const meta = [data.npm, data.prodi, data.tahunLulus ? `Lulus ${data.tahunLulus}` : null].filter(Boolean) as string[];
   return (
-    <div className="flex items-start gap-3 rounded-2xl border border-hub-line bg-white p-4">
-      <div className="min-w-0 flex-1">
-        <p className="text-xs text-hub-muted">Data diri</p>
-        <p className="mt-0.5 break-words text-sm font-semibold">{ringkas}</p>
-        <p className="mt-1 text-xs text-hub-muted">
-          {data.waNumber ? `WhatsApp ${data.waNumber}` : "WhatsApp belum ada"}
-          {data.nik ? ` · NIK ${data.nik}` : ""}
-        </p>
-        {!data.punyaPassport && (
-          <p className="mt-2 rounded-lg bg-[#FFF1CC] px-3 py-2 text-xs text-[#6B4A00]">
-            Belum ada Professional Passport. Kompetensi diisi manual.
+    <div className="relative overflow-hidden rounded-2xl bg-hub-navy p-5 text-white sm:p-6">
+      <div aria-hidden="true" className="pointer-events-none absolute -right-10 -top-12 size-40 rounded-full border-[28px] border-white/5" />
+      <div className="relative flex items-start gap-4">
+        <span aria-hidden="true" className="flex size-12 shrink-0 items-center justify-center rounded-full bg-hub-sand text-base font-bold text-hub-ink">
+          {inisial || <Icon name="user" className="size-6" />}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium text-white/70">Data diri dari kampus</p>
+          <p className="mt-0.5 break-words text-lg font-semibold leading-snug">{data.nama}</p>
+          <ul className="mt-2 flex flex-wrap gap-1.5">
+            {meta.map((m) => (
+              <li key={m} className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs">{m}</li>
+            ))}
+          </ul>
+          <p className="mt-3 break-words text-xs text-white/70">
+            {data.waNumber ? `WhatsApp ${data.waNumber}` : "WhatsApp belum ada"}
+            {data.nik ? ` · NIK ${data.nik}` : ""}
           </p>
-        )}
+        </div>
+        <span className="hidden shrink-0 rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium sm:inline">Diisi sistem</span>
       </div>
-      <span className="shrink-0 rounded-full bg-[#E3F4F1] px-2.5 py-0.5 text-xs font-medium text-[#0B5F57]">Diisi sistem</span>
+      {!data.punyaPassport && (
+        <p className="relative mt-4 rounded-xl bg-[#FFF1CC] px-3 py-2 text-xs text-[#6B4A00]">
+          Belum ada Professional Passport. Kompetensi diisi manual.
+        </p>
+      )}
     </div>
   );
 }
