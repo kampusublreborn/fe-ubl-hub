@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { KomentarProvider } from "./komentar-panel";
 import { Avatar } from "@/shared/components/avatar";
 import { Icon } from "@/shared/components/icons";
 import { pesanGalat } from "@/shared/lib/api-client";
@@ -65,7 +66,7 @@ export function LogbookItem({ awal, onHapus, komentarTerbuka = false }: { awal: 
   }
 
   return (
-    <article
+    <KomentarProvider><article
       aria-label={item.judul}
       className="rounded-2xl border border-hub-line bg-white p-4 transition-shadow duration-200 hover:shadow-[0_8px_24px_-14px_rgba(15,27,61,0.3)] sm:p-5"
     >
@@ -103,7 +104,20 @@ export function LogbookItem({ awal, onHapus, komentarTerbuka = false }: { awal: 
       <p className="mt-2 text-sm font-medium text-hub-teal-dark">
         #{labelKategori(item.kategori).replace(/\s+/g, "")}
       </p>
-      <FotoGaleri ids={item.gambar} judul={item.judul} />
+      <FotoGaleri ids={item.gambar} judul={item.judul} detail={<>
+        <div className="flex items-center gap-3">
+          <Avatar nama={item.penulis.nama} />
+          <div className="min-w-0"><p className="font-semibold [overflow-wrap:anywhere]">{item.penulis.nama}</p><time dateTime={item.waktu} className="text-xs text-hub-muted">{tanggal(item.waktu)}</time></div>
+        </div>
+        <h2 className="mt-4 font-semibold [overflow-wrap:anywhere]">{item.judul}</h2>
+        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed [overflow-wrap:anywhere]">{item.isi}</p>
+        <div className="mt-4 flex items-center justify-between border-y border-hub-line py-2 text-sm text-hub-muted">
+          <button type="button" onClick={ubahLike} aria-pressed={item.sudahLike}  className={`${aksiBtn} ${item.sudahLike ? "text-red-700" : ""}`}><Icon name="heart" className={`size-5 ${item.sudahLike ? "fill-current" : ""}`} />{item.jumlahLike} suka</button>
+          <span>{item.jumlahKomentar} komentar</span>
+        </div>
+        {galat && <p role="alert" className="mt-2 text-sm text-red-700">{galat}</p>}
+        <KomentarPanel logbookId={item.id} pemilikLogbook={item.milikSaya} panelId={`${panelId}-foto`} onUbahJumlah={ubahJumlahKomentar}  />
+      </>} />
 
       <div className="mt-4 flex flex-wrap items-center gap-1 border-t border-hub-line pt-2 -mx-1">
         <button
@@ -178,6 +192,6 @@ export function LogbookItem({ awal, onHapus, komentarTerbuka = false }: { awal: 
           onUbahJumlah={ubahJumlahKomentar}
         />
       )}
-    </article>
+    </article></KomentarProvider>
   );
 }

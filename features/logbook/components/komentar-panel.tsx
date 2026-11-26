@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { createContext, useContext, useEffect, useId, useState, type ReactNode } from "react";
 import { Icon } from "@/shared/components/icons";
 import { panggilApi, pesanGalat } from "@/shared/lib/api-client";
 import { focusRing } from "@/shared/lib/ui";
@@ -19,6 +19,16 @@ function Avatar({ nama, kecil = false }: { nama: string; kecil?: boolean }) {
       {nama.trim().charAt(0).toUpperCase()}
     </span>
   );
+}
+
+type HasilKomentar = Halaman<Komentar>;
+type CacheKomentar = Map<string, { sampai: number; hasil: Promise<HasilKomentar> }>;
+const KonteksKomentar = createContext<CacheKomentar | null>(null);
+
+/** Satu cache per postingan, dibuang saat postingan meninggalkan halaman. */
+export function KomentarProvider({ children }: { children: ReactNode }) {
+  const [cache] = useState<CacheKomentar>(() => new Map());
+  return <KonteksKomentar.Provider value={cache}>{children}</KonteksKomentar.Provider>;
 }
 
 type Sasaran = { induk: number; id: number; nama: string };
@@ -49,8 +59,11 @@ export function KomentarPanel({
 }) {
   const panggilLogbook = <T,>(metode: Parameters<typeof panggilApi>[1], path: string, body?: unknown) =>
     panggilApi<T>(basis, metode, path, body);
+  const cache = useContext(KonteksKomentar);
   const baseId = useId();
   const [daftar, setDaftar] = useState<Komentar[] | null>(null);
+  const [cursor, setCursor] = useState<number | null>(null);
+  const [memuatLagi, setMemuatLagi] = useState(false);
   const [memuat, setMemuat] = useState(true);
   const [galat, setGalat] = useState<string | null>(null);
   const [teks, setTeks] = useState("");
@@ -61,9 +74,20 @@ export function KomentarPanel({
 
   useEffect(() => {
     let batal = false;
-    panggilLogbook<Halaman<Komentar>>("GET", `${jalur}/komentar?limit=100`)
+    const key = `${basis}/${jalur}`;
+    const tersimpan = cache?.get(key);
+    const hasil = tersimpan && tersimpan.sampai > Date.now()
+      ? tersimpan.hasil
+      : panggilApi<HasilKomentar>(basis, "GET", `${jalur}/komentar?limit=10`);
+    if (hasil !== tersimpan?.hasil) {
+      cache?.set(key, { sampai: Date.now() + 30_000, hasil });
+      void hasil.catch(() => {
+        if (cache?.get(key)?.hasil === hasil) cache.delete(key);
+      });
+    }
+    hasil
       .then((r) => {
-        if (!batal) setDaftar(r.data);
+        if (!batal) { setDaftar(r.data); setCursor(r.cursorBerikutnya); }
       })
       .catch((e) => {
         if (!batal) setGalat(pesanGalat(e, "Komentar belum dapat dimuat."));
@@ -74,8 +98,26 @@ export function KomentarPanel({
     return () => {
       batal = true;
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [basis, jalur]);
+  }, [basis, jalur, cache]);
+
+  async function muatLagi() {
+    if (cursor === null || memuatLagi) return;
+    setMemuatLagi(true);
+    setGalat(null);
+    try {
+      const r = await panggilLogbook<Halaman<Komentar>>("GET", `${jalur}/komentar?limit=10&cursor=${cursor}`);
+      setDaftar((lama) => {
+        const gabungan = new Map((lama ?? []).map((k) => [k.id, k]));
+        for (const k of r.data) gabungan.set(k.id, k);
+        return [...gabungan.values()].sort((a, b) => a.id - b.id);
+      });
+      setCursor(r.cursorBerikutnya);
+    } catch (e) {
+      setGalat(pesanGalat(e, "Komentar berikutnya belum dapat dimuat."));
+    } finally {
+      setMemuatLagi(false);
+    }
+  }
 
   async function kirimKomentar(isi: string, balasKeId?: number) {
     const bersih = isi.trim();
@@ -84,6 +126,7 @@ export function KomentarPanel({
     setGalat(null);
     try {
       const baru = await panggilLogbook<Komentar>("POST", `${jalur}/komentar`, { isi: bersih, balasKeId });
+      cache?.delete(`${basis}/${jalur}`);
       setDaftar((d) =>
         baru.indukId === null
           ? [...(d ?? []), { ...baru, balasan: [] }]
@@ -107,6 +150,7 @@ export function KomentarPanel({
     setGalat(null);
     try {
       await panggilLogbook("DELETE", `${jalur}/komentar/${k.id}`);
+      cache?.delete(`${basis}/${jalur}`);
       if (induk) {
         setDaftar((d) => (d ?? []).map((x) => (x.id === induk.id ? { ...x, balasan: (x.balasan ?? []).filter((b) => b.id !== k.id) } : x)));
         onUbahJumlah(-1);
@@ -255,6 +299,10 @@ export function KomentarPanel({
           })}
         </ul>
       )}
+
+      {cursor !== null && <button type="button" onClick={muatLagi} disabled={memuatLagi} className={`${aksiKecil} self-start disabled:opacity-50`}>
+        {memuatLagi ? "Memuat komentar..." : "Muat komentar lainnya"}
+      </button>}
 
       {!bolehTulis && (
         <p className="text-sm text-hub-muted">Gabung ke grup untuk ikut berkomentar.</p>

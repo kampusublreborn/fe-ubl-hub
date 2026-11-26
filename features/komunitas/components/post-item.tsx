@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { KomentarProvider } from "@/features/logbook/client";
 import { Avatar } from "@/shared/components/avatar";
 import { Icon } from "@/shared/components/icons";
 import { pesanGalat } from "@/shared/lib/api-client";
@@ -124,7 +125,7 @@ export function PostItem({
   );
 
   return (
-    <article
+    <KomentarProvider><article
       aria-label={`Postingan ${item.milikSaya ? "Anda" : item.penulis.nama}`}
       className={`rounded-2xl border bg-white p-4 transition-shadow duration-200 hover:shadow-[0_8px_24px_-14px_rgba(15,27,61,0.3)] sm:p-5 ${
         item.pengumuman ? "border-hub-sand/70" : "border-hub-line"
@@ -162,7 +163,19 @@ export function PostItem({
       )}
 
       <p className="mt-3 whitespace-pre-line text-[0.95rem] leading-relaxed [overflow-wrap:anywhere]">{item.isi}</p>
-      <FotoGaleri ids={item.gambar} judul={`postingan ${item.penulis.nama}`} src={urlFotoPost(item.komunitasId, item.id)} />
+      <FotoGaleri ids={item.gambar} judul={`postingan ${item.penulis.nama}`} src={urlFotoPost(item.komunitasId, item.id)} detail={<>
+        <div className="flex items-center gap-3">
+          <Avatar nama={item.penulis.nama} />
+          <div className="min-w-0"><p className="font-semibold [overflow-wrap:anywhere]">{item.penulis.nama}</p><time dateTime={item.waktu} className="text-xs text-hub-muted">{tanggal(item.waktu)}</time></div>
+        </div>
+        <p className="mt-3 whitespace-pre-line text-sm leading-relaxed [overflow-wrap:anywhere]">{item.isi}</p>
+        <div className="mt-4 flex items-center justify-between border-y border-hub-line py-2 text-sm text-hub-muted">
+          <button type="button" onClick={ubahLike} aria-pressed={item.sudahLike} disabled={!bolehTulis} className={`${aksiBtn} ${item.sudahLike ? "text-red-700" : ""}`}><Icon name="heart" className={`size-5 ${item.sudahLike ? "fill-current" : ""}`} />{item.jumlahLike} suka</button>
+          <span>{item.jumlahKomentar} komentar</span>
+        </div>
+        {galat && <p role="alert" className="mt-2 text-sm text-red-700">{galat}</p>}
+        <KomentarPanel logbookId={item.id} pemilikLogbook={item.milikSaya || moderasi} panelId={`${panelId}-foto`} onUbahJumlah={ubahJumlahKomentar} basis="komunitas" jalur={jalur} bolehTulis={bolehTulis} />
+      </>} />
 
       <div className="-mx-1 mt-4 flex flex-wrap items-center gap-1 border-t border-hub-line pt-2">
         <button
@@ -293,6 +306,6 @@ export function PostItem({
           bolehTulis={bolehTulis}
         />
       )}
-    </article>
+    </article></KomentarProvider>
   );
 }
